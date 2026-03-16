@@ -39,21 +39,22 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
     private _distance = (getPosVisual _player) distance2D (getPosVisual _unit);
     private _alpha = 0;
     private _relDir = 0;
+    private _nlDist = _distance;
+
     if (_distance <= _circleRange) then {
         _alpha = linearConversion [_circleRange * 0.90, _circleRange, _distance, diwako_dui_compass_opacity, 0, true];
         private _rDir = ((((getPosVisual _player) getDir (getPosVisual _unit)) - _playerDir) + 360) % 360;
         _relDir = (_rDir - (_viewDir - _playerDir) ) mod 360;
 
-        //make radar non-uniform
-        if (_distance <= _circleRange*0.2) then {
-                linearConversion [0, _circleRange*0.2, _distance, 0, _circleRange*0.333333];
+        if (_nlDist <= _circleRange*GVAR(nonlinearRing1)) then {
+                _nlDist = linearConversion [0, _circleRange*GVAR(nonlinearRing1), _nlDist, 0, _circleRange*0.333333];
         } else {
-            if (_distance <= _circleRange*0.5) then {
-                linearConversion [_circleRange*0.2, _circleRange*0.5, _distance, _circleRange*0.333333, _circleRange*0.666667];
+            if (_nlDist <= _circleRange*GVAR(nonlinearRing2)) then {
+                _nlDist = linearConversion [_circleRange*GVAR(nonlinearRing1), _circleRange*GVAR(nonlinearRing2), _nlDist, _circleRange*0.333333, _circleRange*0.666667];
             } else {
-                linearConversion [_circleRange*0.5, _circleRange, _distance, _circleRange*0.666667, _circleRange];
+                _nlDist = linearConversion [_circleRange*GVAR(nonlinearRing2), _circleRange, _nlDist, _circleRange*0.666667, _circleRange];
             }
-        }
+        };
     };
 
     private _ctrl = _ctrlGrp getVariable [format ["diwako_dui_ctrl_unit_%1", _unitID], controlNull];
@@ -79,8 +80,9 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         };
 
         ctrlPosition _ctrlGrp params ["", "", "_width", "_height"];
-        private _dist = _distance / linearConversion [15, 50, _circleRange, 40, 145, false];
-        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]);
+        private _dist = _nlDist / linearConversion [15, 50, _circleRange, 40, 145, false];
+        private _unitShrink = 1 - _distance * (1-GVAR(minUnitScale)) / _circleRange;
+        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]) * _unitShrink;
         private _newWidth = (44 * pixelW) /_divisor * _baseIconScale * GVAR(fovTweak);
         private _newHeight = (44 * pixelH) /_divisor * _baseIconScale;
 

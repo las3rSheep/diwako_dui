@@ -121,6 +121,9 @@ if (diwako_dui_enable_compass) then {
         private _grpCtrl = _compassDisplay displayCtrl IDC_COMPASS_CTRLGRP;
 
         GVAR(fovTweak) = (getResolution select 6)/0.75;
+        GVAR(minUnitScale) = 0.8;
+        GVAR(nonlinearRing1) = 0.2;
+        GVAR(nonlinearRing2) = 0.5;
 
         if (diwako_dui_use_layout_editor) then {
             _ctrlMiddleX = profileNamespace getVariable ["igui_diwako_dui_compass_x", _ctrlMiddleX];
