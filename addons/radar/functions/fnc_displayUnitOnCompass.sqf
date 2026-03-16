@@ -43,6 +43,17 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         _alpha = linearConversion [_circleRange * 0.90, _circleRange, _distance, diwako_dui_compass_opacity, 0, true];
         private _rDir = ((((getPosVisual _player) getDir (getPosVisual _unit)) - _playerDir) + 360) % 360;
         _relDir = (_rDir - (_viewDir - _playerDir) ) mod 360;
+
+        //make radar non-uniform
+        if (_distance <= _circleRange*0.2) then {
+                linearConversion [0, _circleRange*0.2, _distance, 0, _circleRange*0.333333];
+        } else {
+            if (_distance <= _circleRange*0.5) then {
+                linearConversion [_circleRange*0.2, _circleRange*0.5, _distance, _circleRange*0.333333, _circleRange*0.666667];
+            } else {
+                linearConversion [_circleRange*0.5, _circleRange, _distance, _circleRange*0.666667, _circleRange];
+            }
+        }
     };
 
     private _ctrl = _ctrlGrp getVariable [format ["diwako_dui_ctrl_unit_%1", _unitID], controlNull];
