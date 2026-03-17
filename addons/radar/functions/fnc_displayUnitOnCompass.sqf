@@ -52,7 +52,8 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
     if (_alpha <= 0) then {
         ctrlDelete _ctrl;
     } else {
-        private _dir = -(_viewDir - (getDirVisual _unit)) mod 360;
+        private _doTalkIcon = GVAR(showSpeaking) && {_unit getVariable [QGVAR(isSpeaking), 0] > 0};
+        private _dir = [-(_viewDir - (getDirVisual _unit)) mod 360, 0] select _doTalkIcon;
         private _divisor = linearConversion [35, 50, _circleRange, 2.25, 2.75, false] / diwako_dui_hudScaling; //2.25;
 
         if (isNull _ctrl) then {
@@ -91,7 +92,7 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         _ctrl ctrlSetText ([
             _unit getVariable [QGVAR(compass_icon), DUI_RIFLEMAN],
             _speakingArray select (_unit getVariable [QGVAR(isSpeaking), 0])
-        ] select (GVAR(showSpeaking) && {_unit getVariable [QGVAR(isSpeaking), 0] > 0}));
+        ] select _doTalkIcon);
 
         if (diwako_dui_enable_occlusion) then {
             private _lastSeen = _unit getVariable QGVAR(lastSeen);
