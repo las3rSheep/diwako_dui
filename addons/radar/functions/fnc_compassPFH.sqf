@@ -32,7 +32,27 @@ if ([_player] call EFUNC(main,canHudBeShown)) then {
     // private _dir = (getCameraViewDirection _player) call CBA_fnc_vectDir;
     private _hasCompass = ([_player] call EFUNC(main,getCompass)) isNotEqualTo "";
 
-    _compassCtrl ctrlSetAngle [[0,-_dir] select _hasCompass, 0.5, 0.5, true];
+    private _uiPixels = GVAR(uiPixels);
+
+    private _ctrlHeight = pixelH * _uiPixels;
+    private _ctrlWidth = pixelW * _uiPixels;
+    private _ctrlMiddleX = 0.5 - (pixelW * (_uiPixels / 2));
+    private _compassY = safeZoneY + safeZoneH - (pixelH * (_uiPixels + 10));
+
+    private _rtop = (1-(0.75/1.03))/2;
+    private _rleft = ((1.83/1.33)-1)/2;
+
+    private _newHeight = _ctrlHeight / ((1+_rleft)-cos(2*_dir)*_rleft);
+    private _newWidth = _ctrlWidth / ((1-_rtop)+cos(2*_dir)*_rtop);
+
+    _compassCtrl ctrlSetPosition [
+        _ctrlMiddleX - (_newWidth - _ctrlWidth)/2,
+        _compassY - (_newHeight - _ctrlHeight)/2,
+        _newWidth,
+        _newHeight
+    ];
+    _compassCtrl ctrlSetAngle [[0,-_dir] select _hasCompass, 0.5, 0.5, false];
+    _compassCtrl ctrlCommit 0;
 
     if (_hasCompass &&
         {diwako_dui_enable_compass_dir in [1, 2, 3, 4] &&
