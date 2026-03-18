@@ -289,10 +289,10 @@ private _circleRange = GVAR(compassRangeLimit) min diwako_dui_compassRange;
         [
             _unit getVariable [QGVAR(icon), DUI_RIFLEMAN],
             _speakingIcon
-        ] select (_showSpeaking && { _replaceIconWhenSpeaking && {_isSpeaking > 0 && _inrange}}),
+        ] select (_showSpeaking && { _replaceIconWhenSpeaking && {[0, _inrange, 1] select _isSpeaking}}),
         ""
     ] select (_buddy isNotEqualTo "" && _onlyBuddyIcon);
-    _speakingIcon = ["", _speakingIcon] select (_showSpeaking && { !_replaceIconWhenSpeaking && {_isSpeaking > 0 && {_inrange || {_isSpeaking isEqualTo 2}}}});
+    _speakingIcon = ["", _speakingIcon] select (_showSpeaking && { !_replaceIconWhenSpeaking && {[0, _inrange, 1] select _isSpeaking}});
     _text = format ["<t color='%3' size='%5' shadow='%7' shadowColor='#000000' valign='middle' align='left'>%4<img image='%6'valign='bottom'/><img image='%1'valign='bottom'/> %2 <img image='%8'valign='bottom'/></t><br/>",
         _icon, // 1
         _unit getVariable [QEGVAR(main,customName), _unit getVariable ["ACE_Name", name _unit]], // 2
