@@ -13,7 +13,7 @@ if !(diwako_dui_enable_compass) exitWith {
 };
 
 private _player = [] call CBA_fnc_currentUnit;
-private _grp = GVAR(group);
+private _grp = GVAR(radarTrack);
 
 if (diwako_dui_compass_hide_alone_group && {count (units group _player) <= 1}) exitWith {
     _compassCtrl ctrlShow false;

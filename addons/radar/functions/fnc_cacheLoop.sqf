@@ -93,6 +93,8 @@ if (_specialTrack isEqualType [] && {_specialTrack isNotEqualTo []}) then {
     GVAR(group) = _toTrack + GVAR(group) - [objNull];
 };
 
+GVAR(radarTrack) = GVAR(group) + ((units (side _player)) - GVAR(group));
+
 // start compass if enabeld but not running yet
 if (diwako_dui_enable_compass) then {
     private _compassDisplay = uiNamespace getVariable ["diwako_dui_RscCompass", displayNull];

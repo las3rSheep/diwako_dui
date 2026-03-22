@@ -55,6 +55,8 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         private _doTalkIcon = GVAR(showSpeaking) && {_unit getVariable [QGVAR(isSpeaking), 0] > 0};
         private _dir = [-(_viewDir - (getDirVisual _unit)) mod 360, 0] select _doTalkIcon;
         private _divisor = linearConversion [35, 50, _circleRange, 2.25, 2.75, false] / diwako_dui_hudScaling; //2.25;
+        private _groupMult = [0.5, 1] select ((group _x) isEqualTo (group _player));
+        private _playerMult = [0.5, 1] select isPlayer _x;
 
         if (isNull _ctrl) then {
             _ctrl = _display ctrlCreate ["RscPicture", -1, _ctrlGrp];
@@ -70,7 +72,7 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
 
         ctrlPosition _ctrlGrp params ["", "", "_width", "_height"];
         private _dist = _distance / linearConversion [15, 50, _circleRange, 40, 145, false];
-        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]);
+        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]) * _groupMult;
         private _newWidth = (44 * pixelW) /_divisor * _baseIconScale * GVAR(fovTweak);
         private _newHeight = (44 * pixelH) /_divisor * _baseIconScale;
 
@@ -85,9 +87,9 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
 
         private _color = [0.85, 0.4, 0];
         if (_distance > _distanceWarning || {!(isNull objectParent _unit) || {_unit isEqualTo _player}}) then {
-            _color = + (_unit getVariable [QEGVAR(main,compass_color), [1,1,1]]);
+            _color = + (_unit getVariable [QEGVAR(main,compass_color), [_playerMult,_playerMult,_playerMult]]);
         };
-        _color pushBack _alpha;
+        _color pushBack _alpha * _playerMult * _groupMult;
         _ctrl ctrlSetTextColor _color;
         _ctrl ctrlSetText ([
             _unit getVariable [QGVAR(compass_icon), DUI_RIFLEMAN],
