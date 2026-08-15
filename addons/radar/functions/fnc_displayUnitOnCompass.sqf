@@ -39,8 +39,8 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
     private _distance = (getPosVisual _player) distance2D (getPosVisual _unit);
     private _alpha = 0;
     private _relDir = 0;
-    if (_distance <= _circleRange) then {
-        _alpha = linearConversion [_circleRange * 0.90, _circleRange, _distance, diwako_dui_compass_opacity, 0, true];
+    if (_distance <= _circleRange || ((group _x) isEqualTo (group _player))) then {
+        _alpha = linearConversion [_circleRange * 0.90, _circleRange, _distance, diwako_dui_compass_opacity, 0.5, true];
         private _rDir = ((((getPosVisual _player) getDir (getPosVisual _unit)) - _playerDir) + 360) % 360;
         _relDir = (_rDir - (_viewDir - _playerDir) ) mod 360;
     };
@@ -54,7 +54,7 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
     } else {
         private _doTalkIcon = GVAR(showSpeaking) && {_unit getVariable [QGVAR(isSpeaking), 0] > 0};
         private _dir = [-(_viewDir - (getDirVisual _unit)) mod 360, 0] select _doTalkIcon;
-        private _divisor = linearConversion [35, 50, _circleRange, 2.65, 2.75, false] / diwako_dui_hudScaling; //2.25;
+        private _divisor = linearConversion [35, 50, _circleRange, 2.55, 2.75, false] / diwako_dui_hudScaling; //2.25;
         private _groupMult = [0.7, 1] select ((group _x) isEqualTo (group _player));
         private _npcMult = [0.2, 1] select isPlayer _x;
 
@@ -71,8 +71,8 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         };
 
         ctrlPosition _ctrlGrp params ["", "", "_width", "_height"];
-        private _dist = _distance / linearConversion [15, 50, _circleRange, 40, 145, false];
-        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]) * _groupMult;
+        private _dist = (_distance min (_circleRange * 1.05)) / linearConversion [15, 50, _circleRange, 40, 145, false];
+        private _baseIconScale = _iconScale * (_unit getVariable [QGVAR(icon_size), 1]) * _groupMult * linearConversion [_circleRange * 0.95, _circleRange * 1.05, _distance, 1.0, 0.7, true];
         private _newWidth = (44 * pixelW) /_divisor * _baseIconScale * GVAR(fovTweak);
         private _newHeight = (44 * pixelH) /_divisor * _baseIconScale;
 
@@ -96,42 +96,42 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
             _speakingArray select (_unit getVariable [QGVAR(isSpeaking), 0])
         ] select _doTalkIcon);
 
-        if (diwako_dui_enable_occlusion) then {
-            private _lastSeen = _unit getVariable QGVAR(lastSeen);
-            private _occlusionAlpha = 0;
-            private _occlude = !isNil "_lastSeen";
-            if (_unit getVariable ["diwako_dui_lastChecked", -1] < time) then {
-                private _delay = [1,0.2] select (missionNamespace getVariable [QEGVAR(indicators,show), true]);
+        // if (diwako_dui_enable_occlusion) then {
+        //     private _lastSeen = _unit getVariable QGVAR(lastSeen);
+        //     private _occlusionAlpha = 0;
+        //     private _occlude = !isNil "_lastSeen";
+        //     if (_unit getVariable ["diwako_dui_lastChecked", -1] < time) then {
+        //         private _delay = [1,0.2] select (missionNamespace getVariable [QEGVAR(indicators,show), true]);
 
-                _unit setVariable ["diwako_dui_lastChecked", time + _delay];
-                private _vis = [vehicle _unit, "VIEW"] checkVisibility [eyePos _player,  AGLToASL (_unit modelToWorldVisual (_unit selectionPosition "Spine2"))];
-                private _cone = if (_relDir > 180) then { abs (_relDir - 360)} else { abs _relDir};
-                if (_vis isEqualTo 0 || {GVAR(enable_occlusion_actual_cone) < _cone}) then {
-                    _occlude = true;
-                } else {
-                    // unit visible
-                    if !(isNil "_lastSeen") then {
-                        _unit setVariable [QGVAR(lastSeen), nil];
-                    };
-                    _occlude = false;
-                };
-            };
-            if (_occlude) then {
-                // unit not visible anymore
-                if (isNil "_lastSeen") then {
-                    _lastSeen = time;
-                    _unit setVariable [QGVAR(lastSeen), _lastSeen];
-                };
-                _occlusionAlpha = linearConversion [0, GVAR(occlusion_fade_time), time - _lastSeen, 1, 0, true] min _alpha;
-                _ctrl ctrlSetFade (1 - _occlusionAlpha);
-                _ctrl ctrlCommit 0;
-            } else {
-                _occlusionAlpha = 1;
-                _ctrl ctrlSetFade 0;
-                _ctrl ctrlCommit (GVAR(occlusion_fade_in_time) / 2);
-            };
-            _unit setVariable [QGVAR(occlusion_alpha), _occlusionAlpha];
-        };
+        //         _unit setVariable ["diwako_dui_lastChecked", time + _delay];
+        //         private _vis = [vehicle _unit, "VIEW"] checkVisibility [eyePos _player,  AGLToASL (_unit modelToWorldVisual (_unit selectionPosition "Spine2"))];
+        //         private _cone = if (_relDir > 180) then { abs (_relDir - 360)} else { abs _relDir};
+        //         if (_vis isEqualTo 0 || {GVAR(enable_occlusion_actual_cone) < _cone}) then {
+        //             _occlude = true;
+        //         } else {
+        //             // unit visible
+        //             if !(isNil "_lastSeen") then {
+        //                 _unit setVariable [QGVAR(lastSeen), nil];
+        //             };
+        //             _occlude = false;
+        //         };
+        //     };
+        //     if (_occlude) then {
+        //         // unit not visible anymore
+        //         if (isNil "_lastSeen") then {
+        //             _lastSeen = time;
+        //             _unit setVariable [QGVAR(lastSeen), _lastSeen];
+        //         };
+        //         _occlusionAlpha = linearConversion [0, GVAR(occlusion_fade_time), time - _lastSeen, 1, 0, true] min _alpha;
+        //         _ctrl ctrlSetFade (1 - _occlusionAlpha);
+        //         _ctrl ctrlCommit 0;
+        //     } else {
+        //         _occlusionAlpha = 1;
+        //         _ctrl ctrlSetFade 0;
+        //         _ctrl ctrlCommit (GVAR(occlusion_fade_in_time) / 2);
+        //     };
+        //     _unit setVariable [QGVAR(occlusion_alpha), _occlusionAlpha];
+        // };
 
         _usedCtrls pushBack _ctrl;
     };
