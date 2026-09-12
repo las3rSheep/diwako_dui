@@ -39,7 +39,7 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
     private _distance = (getPosVisual _player) distance2D (getPosVisual _unit);
     private _alpha = 0;
     private _relDir = 0;
-    if (_distance <= _circleRange || ((group _x) isEqualTo (group _player))) then {
+    if (_distance <= (_circleRange * 1.50) || ((group _x) isEqualTo (group _player))) then {
         _alpha = linearConversion [_circleRange * 0.90, _circleRange, _distance, diwako_dui_compass_opacity, 0.5, true];
         private _rDir = ((((getPosVisual _player) getDir (getPosVisual _unit)) - _playerDir) + 360) % 360;
         _relDir = (_rDir - (_viewDir - _playerDir) ) mod 360;
@@ -86,8 +86,10 @@ if (GVAR(vehicleCompassEnabled) && { _player call EFUNC(main,isInCrew) }) then {
         _ctrl ctrlCommit 0;
 
         private _color = [0.85, 0.4, 0];
-        if (_distance > _distanceWarning || {!(isNull objectParent _unit) || {_unit isEqualTo _player}}) then {
-            _color = + (_unit getVariable [QEGVAR(main,compass_color), [_npcMult,_npcMult,_npcMult]]);
+        if ((_unit call ace_common_fnc_isAwake) || ((uiTime%1) < 0.69)) then {
+            if (_distance > _distanceWarning || {!(isNull objectParent _unit) || {_unit isEqualTo _player}}) then {
+                _color = + (_unit getVariable [QEGVAR(main,compass_color), [_npcMult,_npcMult,_npcMult]]);
+            };
         };
         _color pushBack _alpha * _npcMult * _groupMult;
         _ctrl ctrlSetTextColor _color;
